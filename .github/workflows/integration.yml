@@ -19,49 +19,6 @@ on:
     - '!test/README.md'
 
 jobs:
-  build-substrate:
-    name: "[build] substrate"
-    runs-on: ubuntu-18.04
-    steps:
-    - name: Checkout substrate
-      uses: actions/checkout@v2
-      with:
-        repository: paritytech/polkadot
-        ref: v0.7.33
-    - name: Setup rust toolchain
-      id: rustup
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: nightly-2020-04-15
-        target: wasm32-unknown-unknown
-        default: true
-        profile: minimal
-    - name: Cache cargo registry
-      uses: actions/cache@v1
-      with:
-        path: ~/.cargo/registry
-        key: cargo-registry-implementation-substrate-${{ hashFiles('Cargo.lock') }}
-        restore-keys: cargo-registry-implementation-substrate-
-    - name: Cache cargo index
-      uses: actions/cache@v1
-      with:
-        path: ~/.cargo/git
-        key: cargo-index-implementation-substrate-${{ hashFiles('Cargo.lock') }}
-        restore-keys: cargo-index-implementation-substrate-
-    - name: Cache cargo build output
-      uses: actions/cache@v1
-      with:
-        path: target
-        key: cargo-build-implementation-substrate-${{ steps.rustup.outputs.rustc_hash }}-${{ hashFiles('Cargo.lock') }}
-        restore-keys: cargo-build-implementation-substrate-${{ steps.rustup.outputs.rustc_hash }}-
-    - name: Build substrate
-      run: cargo build --release
-    - name: Upload substrate
-      uses: actions/upload-artifact@v1
-      with:
-        name: substrate
-        path: target/release/polkadot
-
   build-kagome:
     name: "[build] kagome"
     runs-on: ubuntu-18.04
@@ -268,17 +225,12 @@ jobs:
 
 
   test-substrate:
-    needs: [ build-substrate, build-adapter-substrate, build-tester-host ]
+    needs: [ build-adapter-substrate, build-tester-host ]
     name: "[test-genesis] substrate"
     runs-on: ubuntu-18.04
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-    - uses: actions/download-artifact@v1
-      with:
-        name: substrate
-        path: test
-    - run: chmod +x test/polkadot
     - uses: actions/download-artifact@v1
       with:
         name: substrate-adapter
@@ -293,7 +245,7 @@ jobs:
         name: genesis.yaml
         path: test/testers/host
     - name: Run substrate with tester genesis
-      run: test/runtests.jl substrate genesis
+      run: test/runtests.jl --docker substrate genesis
 
   test-kagome:
     needs: [ build-kagome, build-adapter-substrate, build-tester-host-legacy ]
