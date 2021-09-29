@@ -28,10 +28,11 @@ extern "C" {
     // Default child stoage API
     fn ext_default_child_storage_set_version_1(child: u64, key: u64, value: u64);
     fn ext_default_child_storage_get_version_1(child: u64, key: u64) -> u64;
-    fn ext_default_child_storage_read_version_1(child: u64, key: u64, out: u64, offset: u32) -> u64;
+    fn ext_default_child_storage_read_version_1(child: u64, key: u64, out: u64, offset: u32)
+        -> u64;
     fn ext_default_child_storage_clear_version_1(child: u64, key: u64);
     fn ext_default_child_storage_storage_kill_version_1(child: u64);
-    fn ext_default_child_storage_storage_kill_version_2(child: u64, limit: u32) -> i32;
+    fn ext_default_child_storage_storage_kill_version_2(child: u64, limit: u64) -> i32;
     fn ext_default_child_storage_exists_version_1(child: u64, key: u64) -> i32;
     fn ext_default_child_storage_clear_prefix_version_1(child: u64, key: u64);
     fn ext_default_child_storage_root_version_1(child: u64) -> u64;
@@ -184,7 +185,7 @@ sp_core::wasm_export_functions! {
 
     fn rtm_ext_offchain_sleep_until_version_1(key: Vec<u8>) {
         unsafe {
-            let _ = ext_offchain_sleep_until_version_1(key.as_re_ptr());      
+            let _ = ext_offchain_sleep_until_version_1(key.as_re_ptr());
         }
     }
 
@@ -262,7 +263,7 @@ sp_core::wasm_export_functions! {
 
     fn rtm_ext_default_child_storage_storage_kill_version_2(
         child: Vec<u8>,
-        limit: u32
+        limit: u64
     ) -> u32 {
         unsafe {
             ext_default_child_storage_storage_kill_version_2(
