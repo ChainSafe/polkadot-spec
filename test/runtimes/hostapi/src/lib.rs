@@ -32,6 +32,7 @@ extern "C" {
     fn ext_default_child_storage_clear_version_1(child: u64, key: u64);
     fn ext_default_child_storage_storage_kill_version_1(child: u64);
     fn ext_default_child_storage_storage_kill_version_2(child: u64, limit: u64) -> i32;
+    fn ext_default_child_storage_storage_kill_version_3(child: u64, limit: u64) -> i32;
     fn ext_default_child_storage_exists_version_1(child: u64, key: u64) -> i32;
     fn ext_default_child_storage_clear_prefix_version_1(child: u64, key: u64);
     fn ext_default_child_storage_root_version_1(child: u64) -> u64;
@@ -261,6 +262,19 @@ sp_core::wasm_export_functions! {
     }
 
     fn rtm_ext_default_child_storage_storage_kill_version_2(
+        child: Vec<u8>,
+        limit: Option<u32>
+    ) -> u32 {
+        let limit = limit.encode();
+        unsafe {
+            ext_default_child_storage_storage_kill_version_2(
+                child.as_re_ptr(),
+                limit.as_re_ptr(),
+            ) as u32
+        }
+    }
+
+    fn rtm_ext_default_child_storage_storage_kill_version_3(
         child: Vec<u8>,
         limit: Option<u32>
     ) -> u32 {
