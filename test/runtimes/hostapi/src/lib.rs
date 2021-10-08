@@ -280,7 +280,7 @@ sp_core::wasm_export_functions! {
     ) -> u32 {
         let limit = limit.encode();
         unsafe {
-            ext_default_child_storage_storage_kill_version_2(
+            ext_default_child_storage_storage_kill_version_3(
                 child.as_re_ptr(),
                 limit.as_re_ptr(),
             ) as u32
