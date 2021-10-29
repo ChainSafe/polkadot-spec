@@ -39,8 +39,6 @@ extern "C" {
     fn ext_default_child_storage_root_version_1(child: u64) -> u64;
     fn ext_default_child_storage_next_key_version_1(child: u64, key: u64) -> u64;
 
-    //
-
     // Crypto API
     fn ext_crypto_ed25519_public_keys_version_1(id: u32) -> u64;
     fn ext_crypto_ed25519_generate_version_1(id: u32, seed: u64) -> u32;
@@ -77,6 +75,7 @@ extern "C" {
 
     // Offchain
     fn ext_offchain_local_storage_clear_version_1(kind: u32, key: u64);
+    fn ext_offchain_http_request_start_version_1(method: u64, uri: u64, meta: u64) -> u64;
 }
 
 #[cfg(feature = "runtime-wasm")]
@@ -575,6 +574,18 @@ sp_core::wasm_export_functions! {
             let _ = ext_offchain_local_storage_clear_version_1(
                 kind.as_ptr() as u32,
                 key.as_re_ptr());
+        }
+    }
+
+    fn rtm_ext_offchain_http_request_start_version_1(method: Vec<u8>, uri: Vec<u8>, meta: Vec<u8>) -> Result<i16, ()> {
+        unsafe {
+            let value = ext_offchain_http_request_start_version_1(
+                method.as_re_ptr(),
+                uri.as_re_ptr(),
+                meta.as_re_ptr(),
+            );
+
+            Ok(Decode::decode(&mut from_mem(value).as_slice()).unwrap())
         }
     }
 }
