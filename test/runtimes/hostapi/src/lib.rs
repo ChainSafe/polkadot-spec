@@ -577,7 +577,7 @@ sp_core::wasm_export_functions! {
         }
     }
 
-    fn rtm_ext_offchain_http_request_start_version_1(method: Vec<u8>, uri: Vec<u8>, meta: Vec<u8>) -> Result<i16, ()> {
+    fn rtm_ext_offchain_http_request_start_version_1(method: Vec<u8>, uri: Vec<u8>, meta: Vec<u8>) -> i16 {
         unsafe {
             let value = ext_offchain_http_request_start_version_1(
                 method.as_re_ptr(),
@@ -585,7 +585,7 @@ sp_core::wasm_export_functions! {
                 meta.as_re_ptr(),
             );
 
-            Ok(Decode::decode(&mut from_mem(value).as_slice()).unwrap())
+            Decode::decode(&mut from_mem(value).as_slice()).unwrap()
         }
     }
 }
