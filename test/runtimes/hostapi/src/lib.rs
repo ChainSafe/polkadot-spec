@@ -71,7 +71,7 @@ extern "C" {
     // Trie API
     fn ext_trie_blake2_256_root_version_1(data: u64) -> u32;
     fn ext_trie_blake2_256_ordered_root_version_1(data: u64) -> u32;
-    fn ext_trie_blake2_256_verify_proof_version_1(a: u64, b: u64, c: u64, d:u64) -> u32;
+    fn ext_trie_blake2_256_verify_proof_version_1(a: u32, b: u64, c: u64, d:u64) -> u32;
 
     // Offchain
     fn ext_offchain_local_storage_clear_version_1(kind: u32, key: u64);
@@ -561,7 +561,7 @@ sp_core::wasm_export_functions! {
         let proofEnc = proof.encode();
         unsafe {
             ext_trie_blake2_256_verify_proof_version_1(
-                root.as_re_ptr(),
+                root.as_ptr() as u32,
                 proofEnc.as_re_ptr(),
                 key.as_re_ptr(),
                 v.as_re_ptr(),
