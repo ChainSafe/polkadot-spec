@@ -17,6 +17,7 @@ extern "C" {
     fn ext_storage_clear_version_1(key: u64);
     fn ext_storage_exists_version_1(key: u64) -> i32;
     fn ext_storage_clear_prefix_version_1(key: u64);
+    fn ext_storage_clear_prefix_version_2(key: u64, limit: u64) -> u64;
     fn ext_storage_append_version_1(key: u64, value: u64);
     fn ext_storage_root_version_1() -> u64;
     fn ext_storage_next_key_version_1(key: u64) -> u64;
@@ -33,6 +34,7 @@ extern "C" {
     fn ext_default_child_storage_clear_version_1(child: u64, key: u64);
     fn ext_default_child_storage_storage_kill_version_1(child: u64);
     fn ext_default_child_storage_storage_kill_version_2(child: u64, limit: u64) -> i32;
+    fn ext_default_child_storage_storage_kill_version_3(child: u64, limit: u64) -> u64;
     fn ext_default_child_storage_exists_version_1(child: u64, key: u64) -> i32;
     fn ext_default_child_storage_clear_prefix_version_1(child: u64, key: u64);
     fn ext_default_child_storage_root_version_1(child: u64) -> u64;
@@ -50,6 +52,7 @@ extern "C" {
     fn ext_crypto_sr25519_verify_version_1(sig: u32, msg: u64, pubkey: u32) -> i32;
 
     fn ext_crypto_secp256k1_ecdsa_recover_version_1(sig: u32, msg: u32) -> u64;
+    fn ext_crypto_ecdsa_verify_version_2(sig: u32, msg: u64, pubkey: u32) -> i32;
 
     // Hashing API
     fn ext_hashing_keccak_256_version_1(data: u64) -> i32;
@@ -69,6 +72,11 @@ extern "C" {
     // Trie API
     fn ext_trie_blake2_256_root_version_1(data: u64) -> u32;
     fn ext_trie_blake2_256_ordered_root_version_1(data: u64) -> u32;
+    fn ext_trie_blake2_256_verify_proof_version_1(a: u32, b: u64, c: u64, d:u64) -> u32;
+
+    // Offchain
+    fn ext_offchain_local_storage_clear_version_1(kind: u32, key: u64);
+    fn ext_offchain_http_request_start_version_1(method: u64, uri: u64, meta: u64) -> u64;
 }
 
 #[cfg(feature = "runtime-wasm")]
@@ -147,6 +155,20 @@ sp_core::wasm_export_functions! {
     fn rtm_ext_storage_clear_prefix_version_1(key: Vec<u8>) {
         unsafe {
             let _ = ext_storage_clear_prefix_version_1(key.as_re_ptr());
+        }
+    }
+
+    fn rtm_ext_storage_clear_prefix_version_2(
+        key: Vec<u8>,
+        limit: Option<u32>
+    ) -> Vec<u8> {
+        let limit = limit.encode();
+        unsafe {
+            let value = ext_storage_clear_prefix_version_2(
+                key.as_re_ptr(),
+                limit.as_re_ptr(),
+            );
+            from_mem(value)
         }
     }
 
@@ -263,13 +285,28 @@ sp_core::wasm_export_functions! {
 
     fn rtm_ext_default_child_storage_storage_kill_version_2(
         child: Vec<u8>,
-        limit: u64
+        limit: Option<u32>
     ) -> u32 {
+        let limit = limit.encode();
         unsafe {
             ext_default_child_storage_storage_kill_version_2(
                 child.as_re_ptr(),
-                limit,
+                limit.as_re_ptr(),
             ) as u32
+        }
+    }
+
+    fn rtm_ext_default_child_storage_storage_kill_version_3(
+        child: Vec<u8>,
+        limit: Option<u32>
+    ) -> Option<Vec<u8>>  {
+        let limit = limit.encode();
+        unsafe {
+            let value = ext_default_child_storage_storage_kill_version_3(
+                child.as_re_ptr(),
+                limit.as_re_ptr(),
+            );
+            Decode::decode(&mut from_mem(value).as_slice()).unwrap()
         }
     }
 
@@ -404,6 +441,15 @@ sp_core::wasm_export_functions! {
             from_mem(value)
         }
     }
+    fn rtm_ext_crypto_ecdsa_verify_version_2(sig_data: Vec<u8>, msg_data: Vec<u8>, pubkey_data: Vec<u8>) -> u32 {
+        unsafe {
+            ext_crypto_ecdsa_verify_version_2(
+                sig_data.as_ptr() as u32,
+                msg_data.as_re_ptr(),
+                pubkey_data.as_ptr() as u32
+            ) as u32
+        }
+    }
 
     // Hashing API
 
@@ -501,6 +547,7 @@ sp_core::wasm_export_functions! {
             std::slice::from_raw_parts(value as *mut u8, 32).to_vec()
         }
     }
+
     fn rtm_ext_trie_blake2_256_ordered_root_version_1(data: Vec<Vec<u8>>) -> Vec<u8> {
         let data = data.encode();
         unsafe {
@@ -508,6 +555,38 @@ sp_core::wasm_export_functions! {
                 data.as_re_ptr()
             );
             std::slice::from_raw_parts(value as *mut u8, 32).to_vec()
+        }
+    }
+
+    fn rtm_ext_trie_blake2_256_verify_proof_version_1(root: Vec<u8>, proof: Vec<Vec<u8>>, key: Vec<u8>, v: Vec<u8>) -> u32 {
+        let proofEnc = proof.encode();
+        unsafe {
+            ext_trie_blake2_256_verify_proof_version_1(
+                root.as_ptr() as u32,
+                proofEnc.as_re_ptr(),
+                key.as_re_ptr(),
+                v.as_re_ptr(),
+            ) as u32
+        }
+    }
+  
+    fn rtm_ext_offchain_local_storage_clear_version_1(kind: [u8; 4], key: Vec<u8>) {
+        unsafe {
+            let _ = ext_offchain_local_storage_clear_version_1(
+                kind.as_ptr() as u32,
+                key.as_re_ptr());
+        }
+    }
+
+    fn rtm_ext_offchain_http_request_start_version_1(method: Vec<u8>, uri: Vec<u8>, meta: Vec<u8>) -> i16 {
+        unsafe {
+            let value = ext_offchain_http_request_start_version_1(
+                method.as_re_ptr(),
+                uri.as_re_ptr(),
+                meta.as_re_ptr(),
+            );
+
+            Decode::decode(&mut from_mem(value).as_slice()).unwrap()
         }
     }
 }

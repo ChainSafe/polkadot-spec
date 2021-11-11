@@ -5,6 +5,7 @@ deps/deps.jl
 build/
 target/
 .idea/
+*.devcontainer
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
