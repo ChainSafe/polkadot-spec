@@ -76,7 +76,8 @@ extern "C" {
     // Offchain
     fn ext_offchain_local_storage_clear_version_1(kind: u32, key: u64);
     fn ext_offchain_http_request_start_version_1(method: u64, uri: u64, meta: u64) -> u64;
-    fn ext_offchain_http_request_add_header_version_1(id: u32, key: u64, value: u64) -> u64;
+    // Uncomment this after PR https://github.com/ChainSafe/gossamer/pull/1994 is merged
+    // fn ext_offchain_http_request_add_header_version_1(id: u32, key: u64, value: u64) -> u64;
 }
 
 #[cfg(feature = "runtime-wasm")]
@@ -590,15 +591,17 @@ sp_core::wasm_export_functions! {
         }
     }
 
-    fn rtm_ext_offchain_http_request_add_header_version_1(id: u32, key: Vec<u8>, value: Vec<u8>) -> Result<(), ()> {
-        unsafe {
-            let value = ext_offchain_http_request_add_header_version_1(
-                id,
-                key.as_re_ptr(),
-                value.as_re_ptr(),
-            );
+    // Uncomment this after PR https://github.com/ChainSafe/gossamer/pull/1994 is merged
 
-            Decode::decode(&mut from_mem(value).as_slice()).unwrap()
-        }
-    }
+    // fn rtm_ext_offchain_http_request_add_header_version_1(id: u32, key: Vec<u8>, value: Vec<u8>) -> Result<(), ()> {
+    //     unsafe {
+    //         let value = ext_offchain_http_request_add_header_version_1(
+    //             id,
+    //             key.as_re_ptr(),
+    //             value.as_re_ptr(),
+    //         );
+
+    //         Decode::decode(&mut from_mem(value).as_slice()).unwrap()
+    //     }
+    // }
 }
