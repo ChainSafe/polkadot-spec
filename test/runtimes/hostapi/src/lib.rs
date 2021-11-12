@@ -29,8 +29,7 @@ extern "C" {
     // Default child storage API
     fn ext_default_child_storage_set_version_1(child: u64, key: u64, value: u64);
     fn ext_default_child_storage_get_version_1(child: u64, key: u64) -> u64;
-    fn ext_default_child_storage_read_version_1(child: u64, key: u64, out: u64, offset: u32)
-        -> u64;
+    fn ext_default_child_storage_read_version_1(child: u64, key: u64, out: u64, offset: u32) -> u64;
     fn ext_default_child_storage_clear_version_1(child: u64, key: u64);
     fn ext_default_child_storage_storage_kill_version_1(child: u64);
     fn ext_default_child_storage_storage_kill_version_2(child: u64, limit: u64) -> i32;
