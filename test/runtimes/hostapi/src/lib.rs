@@ -8,6 +8,24 @@ use parity_scale_codec::{Decode, Encode};
 #[cfg(not(feature = "runtime-wasm"))]
 include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 
+/// An error enum returned by some http methods.
+#[derive(Clone, Copy, Encode, Decode)]
+#[cfg(feature = "runtime-wasm")]
+pub enum HttpError {
+	/// The requested action couldn't been completed within a deadline.
+	DeadlineReached = 1_isize,
+	/// There was an IO Error while processing the request.
+	IoError = 2_isize,
+	/// The ID of the request is invalid in this context.
+	Invalid = 3_isize,
+}
+
+/// Opaque timestamp type
+#[derive(Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Default, Encode, Decode)]
+#[cfg(feature = "runtime-wasm")]
+pub struct Timestamp(u64);
+
+
 #[cfg(feature = "runtime-wasm")]
 extern "C" {
     // Storage API
@@ -76,6 +94,7 @@ extern "C" {
     // Offchain
     fn ext_offchain_local_storage_clear_version_1(kind: u32, key: u64);
     fn ext_offchain_http_request_start_version_1(method: u64, uri: u64, meta: u64) -> u64;
+    fn ext_offchain_http_request_write_body_version_1(id: u32, body :u64, deadline: u64) -> u64;
 }
 
 #[cfg(feature = "runtime-wasm")]
@@ -583,6 +602,20 @@ sp_core::wasm_export_functions! {
                 method.as_re_ptr(),
                 uri.as_re_ptr(),
                 meta.as_re_ptr(),
+            );
+
+            Decode::decode(&mut from_mem(value).as_slice()).unwrap()
+        }
+    }
+
+    fn rtm_ext_offchain_http_request_write_body_version_1(id: u32, body: Vec<u8>, deadline: Option<u64>) -> Result<(), HttpError> {
+        let enc_deadline = deadline.encode();
+
+        unsafe {
+            let value = ext_offchain_http_request_write_body_version_1(
+                id,
+                body.as_re_ptr(),
+                enc_deadline.as_re_ptr(),
             );
 
             Decode::decode(&mut from_mem(value).as_slice()).unwrap()
