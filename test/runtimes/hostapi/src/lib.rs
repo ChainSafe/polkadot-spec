@@ -29,7 +29,8 @@ extern "C" {
     // Default child storage API
     fn ext_default_child_storage_set_version_1(child: u64, key: u64, value: u64);
     fn ext_default_child_storage_get_version_1(child: u64, key: u64) -> u64;
-    fn ext_default_child_storage_read_version_1(child: u64, key: u64, out: u64, offset: u32) -> u64;
+    fn ext_default_child_storage_read_version_1(child: u64, key: u64, out: u64, offset: u32)
+        -> u64;
     fn ext_default_child_storage_clear_version_1(child: u64, key: u64);
     fn ext_default_child_storage_storage_kill_version_1(child: u64);
     fn ext_default_child_storage_storage_kill_version_2(child: u64, limit: u64) -> i32;
@@ -71,13 +72,12 @@ extern "C" {
     // Trie API
     fn ext_trie_blake2_256_root_version_1(data: u64) -> u32;
     fn ext_trie_blake2_256_ordered_root_version_1(data: u64) -> u32;
-    fn ext_trie_blake2_256_verify_proof_version_1(a: u32, b: u64, c: u64, d:u64) -> u32;
+    fn ext_trie_blake2_256_verify_proof_version_1(a: u32, b: u64, c: u64, d: u64) -> u32;
 
     // Offchain
     fn ext_offchain_local_storage_clear_version_1(kind: u32, key: u64);
     fn ext_offchain_http_request_start_version_1(method: u64, uri: u64, meta: u64) -> u64;
-    // Uncomment this after PR https://github.com/ChainSafe/gossamer/pull/1994 is merged
-    // fn ext_offchain_http_request_add_header_version_1(id: u32, key: u64, value: u64) -> u64;
+    fn ext_offchain_http_request_add_header_version_1(id: u32, key: u64, value: u64) -> u64;
 }
 
 #[cfg(feature = "runtime-wasm")]
@@ -570,7 +570,7 @@ sp_core::wasm_export_functions! {
             ) as u32
         }
     }
-  
+
     fn rtm_ext_offchain_local_storage_clear_version_1(kind: [u8; 4], key: Vec<u8>) {
         unsafe {
             let _ = ext_offchain_local_storage_clear_version_1(
@@ -591,17 +591,15 @@ sp_core::wasm_export_functions! {
         }
     }
 
-    // Uncomment this after PR https://github.com/ChainSafe/gossamer/pull/1994 is merged
+    fn rtm_ext_offchain_http_request_add_header_version_1(id: u32, key: Vec<u8>, value: Vec<u8>) -> Result<(), ()> {
+        unsafe {
+            let value = ext_offchain_http_request_add_header_version_1(
+                id,
+                key.as_re_ptr(),
+                value.as_re_ptr(),
+            );
 
-    // fn rtm_ext_offchain_http_request_add_header_version_1(id: u32, key: Vec<u8>, value: Vec<u8>) -> Result<(), ()> {
-    //     unsafe {
-    //         let value = ext_offchain_http_request_add_header_version_1(
-    //             id,
-    //             key.as_re_ptr(),
-    //             value.as_re_ptr(),
-    //         );
-
-    //         Decode::decode(&mut from_mem(value).as_slice()).unwrap()
-    //     }
-    // }
+            Decode::decode(&mut from_mem(value).as_slice()).unwrap()
+        }
+    }
 }
