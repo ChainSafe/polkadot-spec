@@ -26,10 +26,11 @@ extern "C" {
     fn ext_offchain_timestamp_version_1() -> u64;
     fn ext_offchain_sleep_until_version_1(key: u64);
 
-    // Default child stoage API
+    // Default child storage API
     fn ext_default_child_storage_set_version_1(child: u64, key: u64, value: u64);
     fn ext_default_child_storage_get_version_1(child: u64, key: u64) -> u64;
-    fn ext_default_child_storage_read_version_1(child: u64, key: u64, out: u64, offset: u32) -> u64;
+    fn ext_default_child_storage_read_version_1(child: u64, key: u64, out: u64, offset: u32)
+        -> u64;
     fn ext_default_child_storage_clear_version_1(child: u64, key: u64);
     fn ext_default_child_storage_storage_kill_version_1(child: u64);
     fn ext_default_child_storage_storage_kill_version_2(child: u64, limit: u64) -> i32;
@@ -71,7 +72,7 @@ extern "C" {
     // Trie API
     fn ext_trie_blake2_256_root_version_1(data: u64) -> u32;
     fn ext_trie_blake2_256_ordered_root_version_1(data: u64) -> u32;
-    fn ext_trie_blake2_256_verify_proof_version_1(a: u32, b: u64, c: u64, d:u64) -> u32;
+    fn ext_trie_blake2_256_verify_proof_version_1(a: u32, b: u64, c: u64, d: u64) -> u32;
 
     // Offchain
     fn ext_offchain_local_storage_clear_version_1(kind: u32, key: u64);
@@ -198,16 +199,16 @@ sp_core::wasm_export_functions! {
     }
 
     // OffChain API
-    fn rtm_ext_offchain_timestamp_version_1() -> Vec<u8> {
+    fn rtm_ext_offchain_timestamp_version_1() -> u64 {
         unsafe {
             let value = ext_offchain_timestamp_version_1();
-            from_mem(value)
+            value
         }
     }
 
-    fn rtm_ext_offchain_sleep_until_version_1(key: Vec<u8>) {
+    fn rtm_ext_offchain_sleep_until_version_1(key: u64) {
         unsafe {
-            let _ = ext_offchain_sleep_until_version_1(key.as_re_ptr());      
+            ext_offchain_sleep_until_version_1(key);
         }
     }
 
@@ -569,7 +570,7 @@ sp_core::wasm_export_functions! {
             ) as u32
         }
     }
-  
+
     fn rtm_ext_offchain_local_storage_clear_version_1(kind: [u8; 4], key: Vec<u8>) {
         unsafe {
             let _ = ext_offchain_local_storage_clear_version_1(
