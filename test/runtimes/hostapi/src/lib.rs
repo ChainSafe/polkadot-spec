@@ -52,6 +52,7 @@ extern "C" {
     fn ext_crypto_sr25519_verify_version_1(sig: u32, msg: u64, pubkey: u32) -> i32;
 
     fn ext_crypto_secp256k1_ecdsa_recover_version_1(sig: u32, msg: u32) -> u64;
+    fn ext_crypto_ecdsa_generate_version_1(id: u32, seed: u64) -> i32;
     fn ext_crypto_ecdsa_verify_version_2(sig: u32, msg: u64, pubkey: u32) -> i32;
 
     // Hashing API
@@ -440,6 +441,16 @@ sp_core::wasm_export_functions! {
                 msg_data.as_ptr() as u32,
             );
             from_mem(value)
+        }
+    }
+    fn rtm_ext_crypto_ecdsa_generate_version_1(id_data: [u8;4],  seed_data:Option<Vec<u8>>) -> Vec<u8> {
+        let seed_data = seed_data.encode();
+        unsafe {
+            let value = ext_crypto_ecdsa_generate_version_1(
+                id_data.as_ptr() as u32,
+                seed_data.as_re_ptr()
+            );
+            std::slice::from_raw_parts(value as *mut u8, 32).to_vec()
         }
     }
     fn rtm_ext_crypto_ecdsa_verify_version_2(sig_data: Vec<u8>, msg_data: Vec<u8>, pubkey_data: Vec<u8>) -> u32 {
