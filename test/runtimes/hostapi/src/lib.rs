@@ -450,7 +450,7 @@ sp_core::wasm_export_functions! {
                 id_data.as_ptr() as u32,
                 seed_data.as_re_ptr()
             );
-            std::slice::from_raw_parts(value as *mut u8, 32).to_vec()
+            std::slice::from_raw_parts(value as *mut u8, 33).to_vec()
         }
     }
     fn rtm_ext_crypto_ecdsa_verify_version_2(sig_data: Vec<u8>, msg_data: Vec<u8>, pubkey_data: Vec<u8>) -> u32 {
