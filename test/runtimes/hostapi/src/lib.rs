@@ -37,7 +37,9 @@ extern "C" {
     fn ext_default_child_storage_storage_kill_version_3(child: u64, limit: u64) -> u64;
     fn ext_default_child_storage_exists_version_1(child: u64, key: u64) -> i32;
     fn ext_default_child_storage_clear_prefix_version_1(child: u64, key: u64);
+    fn ext_default_child_storage_clear_prefix_version_2(child: u64, key: u64, limit: u64) -> u64;
     fn ext_default_child_storage_root_version_1(child: u64) -> u64;
+    fn ext_default_child_storage_root_version_2(child: u64, version: u32) -> u64;
     fn ext_default_child_storage_next_key_version_1(child: u64, key: u64) -> u64;
 
     // Crypto API
@@ -75,6 +77,7 @@ extern "C" {
     fn ext_trie_blake2_256_verify_proof_version_1(a: u32, b: u64, c: u64, d: u64) -> u32;
 
     // Offchain
+    fn ext_offchain_index_clear_version_1(key: u64);
     fn ext_offchain_local_storage_clear_version_1(kind: u32, key: u64);
     fn ext_offchain_http_request_start_version_1(method: u64, uri: u64, meta: u64) -> u64;
     fn ext_offchain_http_request_add_header_version_1(id: u32, key: u64, value: u64) -> u64;
@@ -335,10 +338,36 @@ sp_core::wasm_export_functions! {
         }
     }
 
+
+    fn rtm_ext_default_child_storage_clear_prefix_version_2(
+        child: Vec<u8>,
+        key: Vec<u8>,
+        limit: Vec<u8>,
+    ) -> Vec<u8> {
+        unsafe {
+            let value = ext_default_child_storage_clear_prefix_version_2(
+                child.as_re_ptr(),
+                key.as_re_ptr(),
+                limit.as_re_ptr(),
+            );
+            from_mem(value)
+        }
+    }
+
     fn rtm_ext_default_child_storage_root_version_1(child: Vec<u8>) -> Vec<u8> {
         unsafe {
             let value = ext_default_child_storage_root_version_1(
                 child.as_re_ptr(),
+            );
+            from_mem(value)
+        }
+    }
+
+    fn rtm_ext_default_child_storage_root_version_2(child: Vec<u8>, version: [u8; 4]) -> Vec<u8> {
+        unsafe {
+            let value = ext_default_child_storage_root_version_2(
+                child.as_re_ptr(),
+                version.as_ptr() as u32,
             );
             from_mem(value)
         }
@@ -568,6 +597,13 @@ sp_core::wasm_export_functions! {
                 key.as_re_ptr(),
                 v.as_re_ptr(),
             ) as u32
+        }
+    }
+
+    fn rtm_ext_offchain_index_clear_version_1(key: Vec<u8>) {
+        unsafe {
+            let _ = ext_offchain_index_clear_version_1(
+                key.as_re_ptr());
         }
     }
 
