@@ -342,15 +342,16 @@ sp_core::wasm_export_functions! {
     fn rtm_ext_default_child_storage_clear_prefix_version_2(
         child: Vec<u8>,
         key: Vec<u8>,
-        limit: Vec<u8>,
-    ) -> Vec<u8> {
+        limit: Option<u32>,
+    ) -> Option<Vec<u8>> {
+        let limit = limit.encode();
         unsafe {
             let value = ext_default_child_storage_clear_prefix_version_2(
                 child.as_re_ptr(),
                 key.as_re_ptr(),
                 limit.as_re_ptr(),
             );
-            from_mem(value)
+            Decode::decode(&mut from_mem(value).as_slice()).unwrap()
         }
     }
 
