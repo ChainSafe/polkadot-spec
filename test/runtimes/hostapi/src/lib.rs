@@ -197,10 +197,10 @@ sp_core::wasm_export_functions! {
         }
     }
 
-    fn rtm_ext_storage_root_version_2(version: [u8; 4]) -> Vec<u8> {
+    fn rtm_ext_storage_root_version_2(version: u32) -> Vec<u8> {
         unsafe {
             let value = ext_storage_root_version_2(
-                version.as_ptr() as u32,
+                version,
             );
             from_mem(value)
         }
@@ -377,11 +377,11 @@ sp_core::wasm_export_functions! {
         }
     }
 
-    fn rtm_ext_default_child_storage_root_version_2(child: Vec<u8>, version: [u8; 4]) -> Vec<u8> {
+    fn rtm_ext_default_child_storage_root_version_2(child: Vec<u8>, version: u32) -> Vec<u8> {
         unsafe {
             let value = ext_default_child_storage_root_version_2(
                 child.as_re_ptr(),
-                version.as_ptr() as u32,
+                version,
             );
             from_mem(value)
         }
@@ -592,12 +592,12 @@ sp_core::wasm_export_functions! {
         }
     }
 
-    fn rtm_ext_trie_blake2_256_root_version_2(data: Vec<(Vec<u8>, Vec<u8>)>, version: [u8; 4]) -> Vec<u8> {
+    fn rtm_ext_trie_blake2_256_root_version_2(data: Vec<(Vec<u8>, Vec<u8>)>, version: u32) -> Vec<u8> {
         let data = data.encode();
         unsafe {
             let value = ext_trie_blake2_256_root_version_2(
                 data.as_re_ptr(),
-                version.as_ptr() as u32,
+                version,
             );
             std::slice::from_raw_parts(value as *mut u8, 32).to_vec()
         }
@@ -613,12 +613,12 @@ sp_core::wasm_export_functions! {
         }
     }
 
-    fn rtm_ext_trie_blake2_256_ordered_root_version_2(data: Vec<Vec<u8>>, version: [u8; 4]) -> Vec<u8> {
+    fn rtm_ext_trie_blake2_256_ordered_root_version_2(data: Vec<Vec<u8>>, version: u32) -> Vec<u8> {
         let data = data.encode();
         unsafe {
             let value = ext_trie_blake2_256_ordered_root_version_2(
                 data.as_re_ptr(),
-                version.as_ptr() as u32,
+                version,
             );
             std::slice::from_raw_parts(value as *mut u8, 32).to_vec()
         }
@@ -636,7 +636,7 @@ sp_core::wasm_export_functions! {
         }
     }
 
-    fn rtm_ext_trie_blake2_256_verify_proof_version_2(root: Vec<u8>, proof: Vec<Vec<u8>>, key: Vec<u8>, v: Vec<u8>, version: [u8; 4]) -> u32 {
+    fn rtm_ext_trie_blake2_256_verify_proof_version_2(root: Vec<u8>, proof: Vec<Vec<u8>>, key: Vec<u8>, v: Vec<u8>, version: u32) -> u32 {
         let proofEnc = proof.encode();
         unsafe {
             ext_trie_blake2_256_verify_proof_version_2(
@@ -644,7 +644,7 @@ sp_core::wasm_export_functions! {
                 proofEnc.as_re_ptr(),
                 key.as_re_ptr(),
                 v.as_re_ptr(),
-                version.as_ptr() as u32,
+                version,
             ) as u32
         }
     }
