@@ -6,7 +6,7 @@ build:
 	cargo build --release
 
 install: build
-	cp target/release/wbuild/hostapi-runtime/hostapi_runtime.compact.wasm ./hostapi_runtime.compact.wasm
+	cp target/release/wbuild/hostapi-runtime/hostapi_runtime.compact.wasm ../../bin/
 
 version:
 	@echo "Unknown"
